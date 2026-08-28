@@ -1,62 +1,56 @@
 import React, { useState, useCallback } from 'react';
 import { CONFIG } from '../config';
+import { PixelIcon } from './PixelIcon';
 
 /**
- * Error type → display config map (3 distinct error types)
+ * 3 Error types display config for Pixel theme
  */
 const ERROR_DISPLAY = {
   WALLET_CONNECTION: {
-    icon: '🔴',
-    label: 'Wallet Error',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200',
-    titleColor: 'text-red-800',
-    textColor: 'text-red-700',
-    iconBg: 'bg-red-100',
+    icon: 'alert',
+    label: '🔴 WALLET CONNECTION ERROR',
+    bgColor: 'bg-red-100',
+    borderColor: 'border-red-600',
+    titleColor: 'text-red-900',
+    textColor: 'text-red-800',
   },
   CONTRACT_EXECUTION: {
-    icon: '🟠',
-    label: 'Transaction Error',
-    bgColor: 'bg-orange-50',
-    borderColor: 'border-orange-200',
-    titleColor: 'text-orange-800',
-    textColor: 'text-orange-700',
-    iconBg: 'bg-orange-100',
+    icon: 'alert',
+    label: '🟠 CONTRACT EXECUTION ERROR',
+    bgColor: 'bg-orange-100',
+    borderColor: 'border-orange-600',
+    titleColor: 'text-orange-900',
+    textColor: 'text-orange-800',
   },
   NETWORK: {
-    icon: '🟡',
-    label: 'Network Error',
-    bgColor: 'bg-yellow-50',
-    borderColor: 'border-yellow-200',
-    titleColor: 'text-yellow-800',
-    textColor: 'text-yellow-700',
-    iconBg: 'bg-yellow-100',
+    icon: 'alert',
+    label: '🟡 NETWORK RPC ERROR',
+    bgColor: 'bg-yellow-100',
+    borderColor: 'border-yellow-600',
+    titleColor: 'text-yellow-900',
+    textColor: 'text-yellow-800',
   },
   UNKNOWN: {
-    icon: '⚠️',
-    label: 'Error',
-    bgColor: 'bg-gray-50',
-    borderColor: 'border-gray-200',
-    titleColor: 'text-gray-800',
-    textColor: 'text-gray-700',
-    iconBg: 'bg-gray-100',
+    icon: 'alert',
+    label: '⚠️ GENERAL ERROR',
+    bgColor: 'bg-gray-100',
+    borderColor: 'border-gray-600',
+    titleColor: 'text-gray-900',
+    textColor: 'text-gray-800',
   },
 };
 
-/**
- * DonateForm — handles donation with 3 distinct error type UI
- */
 export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
   const [amount, setAmount] = useState('');
   const [fieldError, setFieldError] = useState('');
 
   const validate = useCallback((val) => {
     const num = parseFloat(val);
-    if (!val || isNaN(num)) return 'Please enter a donation amount.';
-    if (num <= 0) return 'Amount must be greater than 0.';
+    if (!val || isNaN(num)) return 'ENTER A DONATION AMOUNT.';
+    if (num <= 0) return 'AMOUNT MUST BE GREATER THAN 0.';
     if (num < CONFIG.MIN_DONATION_XLM)
-      return `Minimum donation is ${CONFIG.MIN_DONATION_XLM} XLM.`;
-    if (num > 100000) return 'Maximum donation is 100,000 XLM.';
+      return `MINIMUM DONATION IS ${CONFIG.MIN_DONATION_XLM} XLM.`;
+    if (num > 100000) return 'MAXIMUM DONATION IS 100,000 XLM.';
     return '';
   }, []);
 
@@ -76,7 +70,7 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
       await onDonate(parseFloat(amount));
       setAmount('');
     } catch (_) {
-      // error handled by parent via donationState
+      // handled by parent hook
     }
   };
 
@@ -95,76 +89,51 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
   // ── Error Banner ──────────────────────────────────────────────────────────
   const renderError = () => {
     if (!error) return null;
-    const display =
-      ERROR_DISPLAY[error.type] || ERROR_DISPLAY.UNKNOWN;
+    const display = ERROR_DISPLAY[error.type] || ERROR_DISPLAY.UNKNOWN;
 
     return (
       <div
-        className={`${display.bgColor} ${display.borderColor} border rounded-xl p-4`}
+        className={`${display.bgColor} border-3 ${display.borderColor} p-4 shadow-[4px_4px_0px_0px_#000] text-xs font-pixel-body mb-4`}
         role="alert"
       >
-        <div className="flex items-start space-x-3">
-          <div
-            className={`${display.iconBg} w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0`}
-          >
-            <span>{display.icon}</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className={`font-semibold text-sm ${display.titleColor}`}>
-              {display.label}
-            </p>
-            <p className={`text-sm mt-0.5 ${display.textColor}`}>
-              {error.message}
-            </p>
+        <div className="flex items-start justify-between space-x-2">
+          <div className="flex items-start space-x-2">
+            <PixelIcon name={display.icon} className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className={`font-bold font-pixel-heading text-xs ${display.titleColor}`}>
+                {display.label}
+              </p>
+              <p className={`mt-1 font-bold ${display.textColor}`}>{error.message}</p>
 
-            {/* Wallet Connection Error — show install links */}
-            {error.type === 'WALLET_CONNECTION' && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                <a
-                  href="https://www.freighter.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-red-700 underline hover:text-red-900"
+              {/* Wallet connection error help */}
+              {error.type === 'WALLET_CONNECTION' && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <a
+                    href="https://www.freighter.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-black text-white px-2 py-1 font-bold underline hover:bg-gray-800"
+                  >
+                    INSTALL FREIGHTER ↗
+                  </a>
+                </div>
+              )}
+
+              {/* Network error retry */}
+              {error.type === 'NETWORK' && (
+                <button
+                  onClick={handleReset}
+                  className="mt-2 bg-black text-yellow-300 px-2 py-1 font-bold hover:bg-gray-800"
                 >
-                  Install Freighter →
-                </a>
-                <a
-                  href="https://albedo.link/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-red-700 underline hover:text-red-900"
-                >
-                  Use Albedo →
-                </a>
-              </div>
-            )}
-
-            {/* Network Error — retry button */}
-            {error.type === 'NETWORK' && (
-              <button
-                onClick={handleReset}
-                className="mt-2 text-xs font-medium text-yellow-800 underline hover:text-yellow-900"
-              >
-                🔄 Retry
-              </button>
-            )}
-
-            {/* Contract Error — show tx hash if available */}
-            {error.type === 'CONTRACT_EXECUTION' && donationState.txHash && (
-              <a
-                href={`${CONFIG.STELLAR_EXPERT_URL}/tx/${donationState.txHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 block text-xs text-orange-700 underline hover:text-orange-900 font-mono truncate"
-              >
-                View tx: {donationState.txHash.substring(0, 20)}...
-              </a>
-            )}
+                  🔄 RETRY CONNECTION
+                </button>
+              )}
+            </div>
           </div>
 
           <button
             onClick={handleReset}
-            className={`${display.textColor} hover:opacity-70 flex-shrink-0`}
+            className="font-bold text-lg hover:opacity-70 px-1 border border-black bg-white"
           >
             ✕
           </button>
@@ -173,61 +142,58 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
     );
   };
 
-  // ── Success State ─────────────────────────────────────────────────────────
+  // ── Confirmed Success State ────────────────────────────────────────────────
   if (isConfirmed) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5">
-        <div className="text-center py-4">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">✅</span>
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Donation Confirmed!</h3>
-          <p className="text-gray-600 mb-1">
-            Thank you for donating{' '}
-            <strong>{donationState.amountXLM} XLM</strong> to the campaign!
-          </p>
-          {donationState.txHash && (
-            <a
-              href={`${CONFIG.STELLAR_EXPERT_URL}/tx/${donationState.txHash}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block mt-3 text-sm text-blue-600 hover:text-blue-700 underline font-mono"
-            >
-              View on Stellar Expert ↗
-            </a>
-          )}
-          <button
-            onClick={handleReset}
-            className="mt-5 w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
-          >
-            Donate Again
-          </button>
+      <div className="pixel-box p-6 bg-white space-y-4 text-center">
+        <div className="w-16 h-16 bg-[#D4E751] border-3 border-black shadow-[3px_3px_0px_0px_#000] mx-auto flex items-center justify-center">
+          <PixelIcon name="check" className="w-10 h-10 text-black" />
         </div>
+        <h3 className="font-pixel-heading text-lg font-bold">DONATION CONFIRMED!</h3>
+        <p className="font-pixel-body text-sm bg-green-100 border-2 border-black p-3">
+          THANK YOU FOR DONATING <strong>{donationState.amountXLM} XLM</strong> TO THE CAMPAIGN!
+        </p>
+        {donationState.txHash && (
+          <a
+            href={`${CONFIG.STELLAR_EXPERT_URL}/tx/${donationState.txHash}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block font-pixel-body text-xs bg-black text-[#D4E751] px-3 py-2 border-2 border-black shadow-[2px_2px_0px_0px_#000] hover:underline"
+          >
+            VIEW ON STELLAR EXPERT ↗
+          </a>
+        )}
+        <button
+          onClick={handleReset}
+          className="pixel-btn pixel-btn-primary w-full py-3 text-sm mt-3"
+        >
+          DONATE AGAIN
+        </button>
       </div>
     );
   }
 
   // ── Donate Form ───────────────────────────────────────────────────────────
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Make a Donation</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Donate XLM via your Stellar wallet. Minimum:{' '}
-          <strong>{CONFIG.MIN_DONATION_XLM} XLM</strong>
-        </p>
+    <div className="pixel-box p-6 bg-white space-y-5">
+      <div className="flex items-center space-x-2 border-b-3 border-black pb-3">
+        <PixelIcon name="coin" className="w-6 h-6" />
+        <div>
+          <h2 className="font-pixel-heading text-base font-bold">MAKE A DONATION</h2>
+          <p className="text-xs font-pixel-body text-gray-600">
+            MINIMUM: {CONFIG.MIN_DONATION_XLM} XLM
+          </p>
+        </div>
       </div>
 
-      {/* Error banner */}
       {hasFailed && renderError()}
 
-      {/* Not connected warning */}
       {!connected && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center space-x-3">
-          <span className="text-2xl">⚠️</span>
+        <div className="bg-yellow-200 border-3 border-black p-3 flex items-center space-x-3 shadow-[3px_3px_0px_0px_#000]">
+          <PixelIcon name="alert" className="w-6 h-6 flex-shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-amber-800">Wallet Not Connected</p>
-            <p className="text-sm text-amber-700">
+            <p className="font-pixel-heading text-xs font-bold">WALLET NOT CONNECTED</p>
+            <p className="font-pixel-body text-xs mt-0.5">
               Connect a wallet using the panel on the left to donate.
             </p>
           </div>
@@ -235,9 +201,8 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Amount input */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+          <label className="block font-pixel-body text-xs font-bold uppercase mb-2">
             Donation Amount (XLM)
           </label>
           <div className="relative">
@@ -249,24 +214,22 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
               min={CONFIG.MIN_DONATION_XLM}
               step="0.1"
               disabled={isSubmitting || !connected}
-              className={`w-full px-4 py-3 pr-16 border rounded-xl text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                fieldError
-                  ? 'border-red-400 bg-red-50'
-                  : 'border-gray-300 bg-white'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className="pixel-input w-full pr-16 text-sm"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 font-semibold text-sm">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 font-pixel-heading text-xs font-bold bg-black text-white px-2 py-1">
               XLM
             </span>
           </div>
           {fieldError && (
-            <p className="text-red-600 text-xs mt-1.5 font-medium">{fieldError}</p>
+            <p className="text-xs font-pixel-body font-bold text-red-600 mt-2 bg-red-50 p-1 border border-red-400">
+              ⚠️ {fieldError}
+            </p>
           )}
         </div>
 
-        {/* Quick amount buttons */}
+        {/* Quick Amount Buttons */}
         <div>
-          <p className="text-xs text-gray-500 mb-2 font-medium">Quick amounts:</p>
+          <p className="font-pixel-body text-xs font-bold uppercase mb-2">QUICK AMOUNTS:</p>
           <div className="flex flex-wrap gap-2">
             {[1, 5, 10, 25, 50].map((preset) => (
               <button
@@ -277,57 +240,31 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
                   setFieldError('');
                 }}
                 disabled={isSubmitting || !connected}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                className={`pixel-btn px-3 py-1.5 text-xs ${
                   amount === String(preset)
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:text-blue-600'
-                } disabled:opacity-40 disabled:cursor-not-allowed`}
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-yellow-200'
+                }`}
               >
-                {preset} XLM
+                +{preset} XLM
               </button>
             ))}
           </div>
         </div>
 
-        {/* Submit button */}
+        {/* Action Button */}
         <button
           type="submit"
           disabled={isSubmitting || !connected || !amount}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3.5 px-4 rounded-xl font-bold text-base hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-200"
+          className="pixel-btn pixel-btn-success w-full py-3.5 text-sm md:text-base flex items-center justify-center space-x-2"
         >
-          {isSubmitting ? (
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>
-                {donationState.status === 'submitting'
-                  ? 'Submitting…'
-                  : 'Awaiting confirmation…'}
-              </span>
-            </div>
-          ) : (
-            `💙 Donate ${amount ? `${amount} XLM` : 'Now'}`
-          )}
+          <PixelIcon name="heart" className="w-5 h-5" />
+          <span>
+            {isSubmitting
+              ? 'PROCESSING...'
+              : `DONATE ${amount ? `${amount} XLM` : 'NOW'}`}
+          </span>
         </button>
-
-        {/* Transaction status inline */}
-        {donationState.status === 'pending' && donationState.txHash && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center space-x-3">
-            <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin flex-shrink-0" />
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-blue-800">
-                Waiting for confirmation…
-              </p>
-              <a
-                href={`${CONFIG.STELLAR_EXPERT_URL}/tx/${donationState.txHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:underline font-mono truncate block"
-              >
-                {donationState.txHash.substring(0, 24)}…
-              </a>
-            </div>
-          </div>
-        )}
       </form>
     </div>
   );

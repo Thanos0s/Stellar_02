@@ -1,87 +1,85 @@
 import React from 'react';
 import { CONFIG } from '../config';
+import { PixelIcon } from './PixelIcon';
 
-/**
- * Transaction status badge — pending | confirmed | failed
- */
 export const TransactionStatus = ({ txHash, status }) => {
   if (!txHash && !status) return null;
 
   const configs = {
     submitting: {
-      icon: (
-        <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-      ),
-      label: 'Submitting…',
-      bg: 'bg-blue-50 border-blue-200',
-      textColor: 'text-blue-800',
+      icon: 'refresh',
+      label: 'SUBMITTING TRANSACTION...',
+      bg: 'bg-yellow-100 border-yellow-600',
+      textColor: 'text-yellow-900',
     },
     pending: {
-      icon: (
-        <div className="w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin" />
-      ),
-      label: 'Pending Confirmation',
-      bg: 'bg-yellow-50 border-yellow-200',
-      textColor: 'text-yellow-800',
+      icon: 'refresh',
+      label: 'PENDING CONFIRMATION...',
+      bg: 'bg-yellow-100 border-yellow-600',
+      textColor: 'text-yellow-900',
     },
     confirmed: {
-      icon: <span className="text-green-600 text-base">✅</span>,
-      label: 'Confirmed',
-      bg: 'bg-green-50 border-green-200',
-      textColor: 'text-green-800',
+      icon: 'check',
+      label: 'TRANSACTION CONFIRMED!',
+      bg: 'bg-green-100 border-green-600',
+      textColor: 'text-green-900',
     },
     failed: {
-      icon: <span className="text-red-500 text-base">❌</span>,
-      label: 'Failed',
-      bg: 'bg-red-50 border-red-200',
-      textColor: 'text-red-800',
+      icon: 'alert',
+      label: 'TRANSACTION FAILED!',
+      bg: 'bg-red-100 border-red-600',
+      textColor: 'text-red-900',
     },
     timeout: {
-      icon: <span className="text-orange-500 text-base">⏱️</span>,
-      label: 'Timed Out',
-      bg: 'bg-orange-50 border-orange-200',
-      textColor: 'text-orange-800',
+      icon: 'alert',
+      label: 'TRANSACTION TIMEOUT',
+      bg: 'bg-orange-100 border-orange-600',
+      textColor: 'text-orange-900',
     },
     unknown: {
-      icon: <span className="text-gray-500 text-base">❓</span>,
-      label: 'Status Unknown',
-      bg: 'bg-gray-50 border-gray-200',
-      textColor: 'text-gray-800',
+      icon: 'alert',
+      label: 'UNKNOWN STATUS',
+      bg: 'bg-gray-100 border-gray-600',
+      textColor: 'text-gray-900',
     },
   };
 
   const cfg = configs[status] || configs.pending;
 
   return (
-    <div className={`border rounded-xl p-4 ${cfg.bg}`}>
+    <div className={`border-3 border-black p-4 shadow-[4px_4px_0px_0px_#000] ${cfg.bg} font-pixel-body`}>
       <div className="flex items-start space-x-3">
-        <div className="flex-shrink-0 mt-0.5">{cfg.icon}</div>
+        <div className="w-8 h-8 bg-black text-white border border-black flex items-center justify-center flex-shrink-0 shadow-[1px_1px_0px_0px_#000]">
+          <PixelIcon name={cfg.icon} className="w-5 h-5 text-[#D4E751]" />
+        </div>
+
         <div className="flex-1 min-w-0">
-          <p className={`font-semibold text-sm ${cfg.textColor}`}>
-            Transaction {cfg.label}
+          <p className={`font-pixel-heading text-xs font-bold ${cfg.textColor}`}>
+            {cfg.label}
           </p>
+
           {txHash && (
-            <div className="mt-1.5 space-y-1">
-              <p className="text-xs text-gray-500 font-medium">Transaction Hash:</p>
+            <div className="mt-2 space-y-1.5 text-xs">
+              <p className="font-bold text-gray-700">HASH:</p>
               <div className="flex items-center space-x-2">
-                <code className="text-xs text-gray-700 font-mono bg-white px-2 py-1 rounded border border-gray-200 truncate max-w-xs">
+                <code className="bg-white px-2 py-1 border-2 border-black font-mono text-[10px] truncate max-w-xs font-bold">
                   {txHash}
                 </code>
                 <button
                   onClick={() => navigator.clipboard.writeText(txHash)}
-                  title="Copy hash"
-                  className="text-gray-400 hover:text-gray-700 flex-shrink-0"
+                  className="bg-black text-white text-[10px] font-bold px-2 py-1 hover:bg-gray-800"
                 >
-                  📋
+                  COPY
                 </button>
               </div>
+
               <a
                 href={`${CONFIG.STELLAR_EXPERT_URL}/tx/${txHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`inline-flex items-center text-xs font-medium underline ${cfg.textColor} hover:opacity-80`}
+                className="inline-block mt-1 font-bold text-xs bg-black text-[#D4E751] px-2 py-1 underline hover:bg-gray-800"
               >
-                View on Stellar Expert ↗
+                VIEW ON STELLAR EXPERT ↗
               </a>
             </div>
           )}

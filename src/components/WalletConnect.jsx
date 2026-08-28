@@ -1,9 +1,7 @@
 import React from 'react';
 import { useWallet } from '../hooks/useWallet';
+import { PixelIcon } from './PixelIcon';
 
-/**
- * Multi-wallet connect panel — Freighter, Albedo, xBull
- */
 export const WalletConnect = ({ onConnected }) => {
   const {
     connected,
@@ -28,7 +26,7 @@ export const WalletConnect = ({ onConnected }) => {
     try {
       await connect(walletProvider);
     } catch (err) {
-      // Error is stored in hook state
+      // hook manages error state
     }
   };
 
@@ -37,43 +35,53 @@ export const WalletConnect = ({ onConnected }) => {
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
   };
 
+  const getProviderIconName = (key) => {
+    if (key === 'freighter') return 'rocket';
+    if (key === 'albedo') return 'key';
+    if (key === 'xbull') return 'flash';
+    return 'wallet';
+  };
+
   // ── Connected State ──────────────────────────────────────────────────────
   if (connected) {
-    const info = walletProviders[provider] || {};
     return (
-      <div className="space-y-4">
-        {/* Connected badge */}
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
+      <div className="space-y-4 font-pixel-body">
+        <div className="bg-[#D4E751] border-3 border-black p-4 shadow-[4px_4px_0px_0px_#000]">
+          <div className="flex items-center justify-between mb-3 border-b-2 border-black pb-2">
             <div className="flex items-center space-x-2">
-              <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-semibold text-green-800">Connected</span>
+              <span className="w-2.5 h-2.5 bg-black animate-ping" />
+              <span className="font-pixel-heading text-xs font-bold text-black uppercase">
+                CONNECTED
+              </span>
             </div>
             <button
               onClick={disconnect}
-              className="text-xs text-green-600 hover:text-green-800 font-medium"
+              className="text-xs bg-black text-white font-bold px-2 py-1 hover:bg-red-600"
             >
-              Disconnect
+              DISCONNECT
             </button>
           </div>
-          <div className="space-y-2 text-sm">
+
+          <div className="space-y-2 text-xs">
             <div className="flex justify-between items-center">
-              <span className="text-gray-500">Wallet</span>
-              <span className="font-semibold flex items-center space-x-1">
-                <span>{info.icon}</span>
-                <span>{info.name || provider}</span>
+              <span className="font-bold text-gray-700">WALLET:</span>
+              <span className="font-bold bg-white px-2 py-0.5 border border-black uppercase flex items-center space-x-1">
+                <PixelIcon name={getProviderIconName(provider)} className="w-4 h-4" />
+                <span>{provider}</span>
               </span>
             </div>
+
             <div className="flex justify-between items-center">
-              <span className="text-gray-500">Address</span>
-              <code className="text-xs font-mono text-gray-700">
+              <span className="font-bold text-gray-700">ADDRESS:</span>
+              <code className="font-mono bg-white px-2 py-0.5 border border-black text-xs font-bold">
                 {formatAddress(address)}
               </code>
             </div>
+
             <div className="flex justify-between items-center">
-              <span className="text-gray-500">Balance</span>
-              <span className="font-bold text-green-700">
-                {parseFloat(balance).toFixed(4)} XLM
+              <span className="font-bold text-gray-700">BALANCE:</span>
+              <span className="font-pixel-heading text-xs font-bold bg-black text-green-400 px-2 py-1">
+                {parseFloat(balance).toFixed(2)} XLM
               </span>
             </div>
           </div>
@@ -84,73 +92,63 @@ export const WalletConnect = ({ onConnected }) => {
 
   // ── Disconnected State ───────────────────────────────────────────────────
   return (
-    <div className="space-y-3">
-      <div>
-        <h3 className="font-bold text-gray-900 mb-0.5">Connect Wallet</h3>
-        <p className="text-xs text-gray-500">Choose your Stellar wallet</p>
+    <div className="space-y-4 font-pixel-body">
+      <div className="border-b-3 border-black pb-2 flex items-center space-x-2">
+        <PixelIcon name="wallet" className="w-6 h-6" />
+        <div>
+          <h3 className="font-pixel-heading text-sm font-bold uppercase">CONNECT WALLET</h3>
+          <p className="text-[10px] text-gray-600">SELECT YOUR STELLAR WALLET</p>
+        </div>
       </div>
 
-      {/* Error banner */}
       {error && (
-        <div
-          className={`rounded-xl p-3 border text-sm ${
-            error.type === 'WALLET_CONNECTION'
-              ? 'bg-red-50 border-red-200 text-red-700'
-              : error.type === 'NETWORK'
-              ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
-              : 'bg-gray-50 border-gray-200 text-gray-700'
-          }`}
-        >
+        <div className="bg-red-100 border-2 border-black p-3 text-xs shadow-[2px_2px_0px_0px_#000]">
           <div className="flex justify-between items-start">
-            <p className="font-medium text-xs">
-              {error.type === 'WALLET_CONNECTION'
-                ? '🔴 Wallet Error'
-                : error.type === 'NETWORK'
-                ? '🟡 Network Error'
-                : '⚠️ Error'}
-            </p>
-            <button onClick={clearError} className="text-gray-400 hover:text-gray-700 ml-2">
+            <span className="font-bold font-pixel-heading text-[10px] text-red-900">
+              🔴 ERROR
+            </span>
+            <button onClick={clearError} className="font-bold hover:opacity-70">
               ✕
             </button>
           </div>
-          <p className="mt-1 text-xs">{error.message}</p>
+          <p className="mt-1 font-bold text-red-800">{error.message}</p>
         </div>
       )}
 
-      {/* Wallet options */}
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {Object.entries(walletProviders).map(([key, info]) => {
           const installed = isProviderInstalled(key);
+          const iconName = getProviderIconName(key);
+
           return (
             <button
               key={key}
               onClick={() => handleConnect(key)}
               disabled={loading}
-              className={`w-full flex items-center justify-between p-3 border rounded-xl transition-all ${
+              className={`w-full flex items-center justify-between p-3 border-3 border-black shadow-[3px_3px_0px_0px_#000] transition-all text-left ${
                 installed
-                  ? 'border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer'
-                  : 'border-gray-100 bg-gray-50 cursor-pointer opacity-80'
+                  ? 'bg-white hover:bg-yellow-100 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[5px_5px_0px_0px_#000]'
+                  : 'bg-gray-100 opacity-80'
               }`}
             >
               <div className="flex items-center space-x-3">
-                {/* Icon */}
-                <div
-                  className={`w-9 h-9 bg-gradient-to-br ${info.color} rounded-xl flex items-center justify-center shadow-sm`}
-                >
-                  <span className="text-lg">{info.icon}</span>
+                <div className="w-8 h-8 bg-black text-white border border-black flex items-center justify-center shadow-[1px_1px_0px_0px_#000]">
+                  <PixelIcon name={iconName} className="w-5 h-5 text-[#D4E751]" />
                 </div>
-                <div className="text-left">
-                  <p className="text-sm font-semibold text-gray-900">{info.name}</p>
-                  <p className="text-xs text-gray-400">{info.description}</p>
+                <div>
+                  <p className="font-pixel-heading text-xs font-bold">{info.name}</p>
+                  <p className="text-[10px] text-gray-600 uppercase">{info.description}</p>
                 </div>
               </div>
 
               <div className="text-right flex-shrink-0 ml-2">
                 {loading ? (
-                  <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[10px] font-bold bg-yellow-300 px-1 border border-black">
+                    CONNECTING...
+                  </span>
                 ) : installed ? (
-                  <span className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-full">
-                    Ready
+                  <span className="text-[10px] font-bold bg-[#D4E751] text-black px-2 py-0.5 border border-black">
+                    READY
                   </span>
                 ) : (
                   <a
@@ -158,9 +156,9 @@ export const WalletConnect = ({ onConnected }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-xs text-blue-600 underline hover:text-blue-800"
+                    className="text-[10px] font-bold bg-black text-white px-2 py-0.5 underline hover:bg-gray-800"
                   >
-                    Install
+                    INSTALL ↗
                   </a>
                 )}
               </div>
@@ -169,8 +167,8 @@ export const WalletConnect = ({ onConnected }) => {
         })}
       </div>
 
-      <p className="text-xs text-gray-400 text-center pt-1">
-        🔒 Your keys stay in your wallet — never shared
+      <p className="text-[10px] text-center font-bold text-gray-600 pt-1">
+        🔒 YOUR KEYS STAY SAFE IN YOUR WALLET
       </p>
     </div>
   );
