@@ -1,4 +1,4 @@
-# StellarFund — Crowdfunding dApp on Stellar Testnet (Level 2)
+# FundingWala — Crowdfunding dApp on Stellar Testnet (Level 2)
 
 A decentralized crowdfunding application built on the **Stellar Testnet** using a **Soroban smart contract**. Donors connect their Stellar wallet (Freighter, Albedo, or xBull) and donate XLM toward a campaign goal with real-time progress tracking.
 
