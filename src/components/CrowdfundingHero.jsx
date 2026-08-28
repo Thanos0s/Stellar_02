@@ -5,11 +5,6 @@ import { CONFIG } from '../config';
  * Campaign hero section — title, description, goal, deadline
  */
 export const CrowdfundingHero = ({ campaign, loadingCampaign }) => {
-  const formatAddress = (addr) => {
-    if (!addr) return '';
-    return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
-  };
-
   const deadlineLedger = campaign?.deadline || CONFIG.CAMPAIGN_DEADLINE_LEDGER;
 
   return (

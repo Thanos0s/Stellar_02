@@ -2,11 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { contractService } from '../services/contractService';
 import { eventService } from '../services/eventService';
 import { CONFIG } from '../config';
-import {
-  ContractExecutionError,
-  NetworkError,
-  handleError,
-} from '../utils/errorHandler';
+import { handleError } from '../utils/errorHandler';
 import { walletService } from '../services/walletService';
 
 export const useCrowdfunding = () => {
