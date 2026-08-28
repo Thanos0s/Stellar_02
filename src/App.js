@@ -35,7 +35,7 @@ function App() {
               </div>
               <div>
                 <h1 className="text-lg font-extrabold text-gray-900 leading-tight">
-                  StellarFund
+                  FundingWala
                 </h1>
                 <p className="text-xs text-gray-400">Crowdfunding on Stellar</p>
               </div>
