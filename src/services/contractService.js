@@ -51,16 +51,22 @@ export class ContractService {
   }
 
   /**
+   * Return a valid dummy account for read-only contract simulation
+   */
+  _getDummyAccount() {
+    return new StellarSdk.Account(
+      'GCK3REPLT7LXQF3BHTBEMN4O6JRX4GBTMCYMLHWGJMWKWQX7D3GBJHCO',
+      '0'
+    );
+  }
+
+  /**
    * Get current campaign data (raised, goal, deadline, active)
    */
   async getCampaign() {
     try {
       const contract = new StellarSdk.Contract(this.contractAddress);
-      // Use a dummy account for read-only simulation
-      const dummyAccount = new StellarSdk.Account(
-        'GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN',
-        '0'
-      );
+      const dummyAccount = this._getDummyAccount();
 
       const tx = new StellarSdk.TransactionBuilder(dummyAccount, {
         fee: StellarSdk.BASE_FEE,
@@ -95,10 +101,7 @@ export class ContractService {
   async getRaised() {
     try {
       const contract = new StellarSdk.Contract(this.contractAddress);
-      const dummyAccount = new StellarSdk.Account(
-        'GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN',
-        '0'
-      );
+      const dummyAccount = this._getDummyAccount();
 
       const tx = new StellarSdk.TransactionBuilder(dummyAccount, {
         fee: StellarSdk.BASE_FEE,
@@ -324,7 +327,7 @@ export class ContractService {
    */
   _getMockCampaign() {
     return {
-      admin: 'GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN',
+      admin: 'GCK3REPLT7LXQF3BHTBEMN4O6JRX4GBTMCYMLHWGJMWKWQX7D3GBJHCO',
       goal: CONFIG.CAMPAIGN_GOAL_XLM,
       raised: 0,
       deadline: CONFIG.CAMPAIGN_DEADLINE_LEDGER,
