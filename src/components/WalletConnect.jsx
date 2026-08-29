@@ -92,17 +92,17 @@ export const WalletConnect = ({ onConnected }) => {
 
   // ── Disconnected State ───────────────────────────────────────────────────
   return (
-    <div className="space-y-4 font-pixel-body">
-      <div className="border-b-3 border-black pb-2 flex items-center space-x-2">
-        <PixelIcon name="wallet" className="w-6 h-6" />
+    <div className="space-y-5 font-pixel-body">
+      <div className="border-b-3 border-black pb-3 flex items-center space-x-3">
+        <PixelIcon name="wallet" className="w-6 h-6 flex-shrink-0" />
         <div>
           <h3 className="font-pixel-heading text-sm font-bold uppercase">CONNECT WALLET</h3>
-          <p className="text-[10px] text-gray-600">SELECT YOUR STELLAR WALLET</p>
+          <p className="text-[10px] text-gray-600 mt-1">SELECT YOUR STELLAR WALLET</p>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-100 border-2 border-black p-3 text-xs shadow-[2px_2px_0px_0px_#000]">
+        <div className="bg-red-100 border-2 border-black p-4 text-xs shadow-[2px_2px_0px_0px_#000]">
           <div className="flex justify-between items-start">
             <span className="font-bold font-pixel-heading text-[10px] text-red-900">
               🔴 ERROR
@@ -111,11 +111,11 @@ export const WalletConnect = ({ onConnected }) => {
               ✕
             </button>
           </div>
-          <p className="mt-1 font-bold text-red-800">{error.message}</p>
+          <p className="mt-2 font-bold text-red-800">{error.message}</p>
         </div>
       )}
 
-      <div className="space-y-2.5">
+      <div className="space-y-4">
         {Object.entries(walletProviders).map(([key, info]) => {
           const installed = isProviderInstalled(key);
           const iconName = getProviderIconName(key);
@@ -125,29 +125,29 @@ export const WalletConnect = ({ onConnected }) => {
               key={key}
               onClick={() => handleConnect(key)}
               disabled={loading}
-              className={`w-full flex items-center justify-between p-3 border-3 border-black shadow-[3px_3px_0px_0px_#000] transition-all text-left ${
+              className={`w-full flex items-center justify-between p-4 border-3 border-black shadow-[3px_3px_0px_0px_#000] transition-all text-left ${
                 installed
                   ? 'bg-white hover:bg-yellow-100 hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[5px_5px_0px_0px_#000]'
                   : 'bg-gray-100 opacity-80'
               }`}
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-black text-white border border-black flex items-center justify-center shadow-[1px_1px_0px_0px_#000]">
+              <div className="flex items-center space-x-3 min-w-0">
+                <div className="w-9 h-9 bg-black text-white border border-black flex items-center justify-center flex-shrink-0 shadow-[1px_1px_0px_0px_#000]">
                   <PixelIcon name={iconName} className="w-5 h-5 text-[#D4E751]" />
                 </div>
-                <div>
-                  <p className="font-pixel-heading text-xs font-bold">{info.name}</p>
-                  <p className="text-[10px] text-gray-600 uppercase">{info.description}</p>
+                <div className="min-w-0">
+                  <p className="font-pixel-heading text-xs font-bold mb-1 truncate">{info.name}</p>
+                  <p className="text-[10px] text-gray-600 uppercase leading-snug">{info.description}</p>
                 </div>
               </div>
 
-              <div className="text-right flex-shrink-0 ml-2">
+              <div className="text-right flex-shrink-0 ml-3">
                 {loading ? (
-                  <span className="text-[10px] font-bold bg-yellow-300 px-1 border border-black">
+                  <span className="text-[10px] font-bold bg-yellow-300 px-2 py-1 border border-black">
                     CONNECTING...
                   </span>
                 ) : installed ? (
-                  <span className="text-[10px] font-bold bg-[#D4E751] text-black px-2 py-0.5 border border-black">
+                  <span className="text-[10px] font-bold bg-[#D4E751] text-black px-2.5 py-1 border border-black">
                     READY
                   </span>
                 ) : (
@@ -156,7 +156,7 @@ export const WalletConnect = ({ onConnected }) => {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-[10px] font-bold bg-black text-white px-2 py-0.5 underline hover:bg-gray-800"
+                    className="text-[10px] font-bold bg-black text-white px-2.5 py-1 underline hover:bg-gray-800 inline-block"
                   >
                     INSTALL ↗
                   </a>
@@ -167,7 +167,7 @@ export const WalletConnect = ({ onConnected }) => {
         })}
       </div>
 
-      <p className="text-[10px] text-center font-bold text-gray-600 pt-1">
+      <p className="text-[10px] text-center font-bold text-gray-600 pt-3 border-t border-dashed border-gray-300 mt-2">
         🔒 YOUR KEYS STAY SAFE IN YOUR WALLET
       </p>
     </div>

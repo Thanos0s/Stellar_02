@@ -134,10 +134,12 @@ body {
 /* Pixel Fonts Utility */
 .font-pixel-heading {
   font-family: var(--font-pixel-heading);
+  line-height: 1.5;
 }
 
 .font-pixel-body {
   font-family: var(--font-pixel-body);
+  line-height: 1.5;
 }
 
 /* Scattered decorative background pixel elements */

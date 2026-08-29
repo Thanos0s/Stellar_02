@@ -175,12 +175,12 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
 
   // ── Donate Form ───────────────────────────────────────────────────────────
   return (
-    <div className="pixel-box p-6 bg-white space-y-5">
-      <div className="flex items-center space-x-2 border-b-3 border-black pb-3">
-        <PixelIcon name="coin" className="w-6 h-6" />
+    <div className="pixel-box p-6 md:p-8 bg-white space-y-6">
+      <div className="flex items-center space-x-3 border-b-3 border-black pb-4">
+        <PixelIcon name="coin" className="w-6 h-6 flex-shrink-0" />
         <div>
           <h2 className="font-pixel-heading text-base font-bold">MAKE A DONATION</h2>
-          <p className="text-xs font-pixel-body text-gray-600">
+          <p className="text-xs font-pixel-body text-gray-600 mt-1">
             MINIMUM: {CONFIG.MIN_DONATION_XLM} XLM
           </p>
         </div>
@@ -189,20 +189,20 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
       {hasFailed && renderError()}
 
       {!connected && (
-        <div className="bg-yellow-200 border-3 border-black p-3 flex items-center space-x-3 shadow-[3px_3px_0px_0px_#000]">
+        <div className="bg-yellow-200 border-3 border-black p-4 flex items-center space-x-3 shadow-[3px_3px_0px_0px_#000]">
           <PixelIcon name="alert" className="w-6 h-6 flex-shrink-0" />
           <div>
             <p className="font-pixel-heading text-xs font-bold">WALLET NOT CONNECTED</p>
-            <p className="font-pixel-body text-xs mt-0.5">
+            <p className="font-pixel-body text-xs mt-1 leading-relaxed">
               Connect a wallet using the panel on the left to donate.
             </p>
           </div>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block font-pixel-body text-xs font-bold uppercase mb-2">
+          <label className="block font-pixel-body text-xs font-bold uppercase mb-3">
             Donation Amount (XLM)
           </label>
           <div className="relative">
@@ -221,7 +221,7 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
             </span>
           </div>
           {fieldError && (
-            <p className="text-xs font-pixel-body font-bold text-red-600 mt-2 bg-red-50 p-1 border border-red-400">
+            <p className="text-xs font-pixel-body font-bold text-red-600 mt-2 bg-red-50 p-2 border border-red-400">
               ⚠️ {fieldError}
             </p>
           )}
@@ -229,8 +229,8 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
 
         {/* Quick Amount Buttons */}
         <div>
-          <p className="font-pixel-body text-xs font-bold uppercase mb-2">QUICK AMOUNTS:</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="font-pixel-body text-xs font-bold uppercase mb-3">QUICK AMOUNTS:</p>
+          <div className="flex flex-wrap gap-3">
             {[1, 5, 10, 25, 50].map((preset) => (
               <button
                 key={preset}
@@ -240,7 +240,7 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
                   setFieldError('');
                 }}
                 disabled={isSubmitting || !connected}
-                className={`pixel-btn px-3 py-1.5 text-xs ${
+                className={`pixel-btn px-4 py-2 text-xs ${
                   amount === String(preset)
                     ? 'bg-black text-white'
                     : 'bg-white text-black hover:bg-yellow-200'
@@ -256,7 +256,7 @@ export const DonateForm = ({ connected, donationState, onDonate, onReset }) => {
         <button
           type="submit"
           disabled={isSubmitting || !connected || !amount}
-          className="pixel-btn pixel-btn-success w-full py-3.5 text-sm md:text-base flex items-center justify-center space-x-2"
+          className="pixel-btn pixel-btn-success w-full py-4 text-sm md:text-base flex items-center justify-center space-x-2 mt-4"
         >
           <PixelIcon name="heart" className="w-5 h-5" />
           <span>

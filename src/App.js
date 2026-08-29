@@ -35,7 +35,7 @@ function App() {
       <div className="max-w-7xl mx-auto relative z-10">
 
         {/* ── Retro Pixel Header Bar ──────────────────────────── */}
-        <header className="pixel-box bg-white p-4 md:p-6 mb-6 flex flex-wrap justify-between items-center gap-4">
+        <header className="pixel-box bg-white p-5 md:p-6 mb-8 flex flex-wrap justify-between items-center gap-4">
           <div className="flex items-center space-x-3">
             {/* Retro Pixel Logo */}
             <div className="w-12 h-12 bg-[#D4E751] border-3 border-black flex items-center justify-center shadow-[3px_3px_0px_0px_#000]">
@@ -45,7 +45,7 @@ function App() {
               <h1 className="font-pixel-heading text-xl md:text-2xl font-extrabold tracking-tight">
                 FundingWala
               </h1>
-              <p className="font-pixel-body text-xs font-bold text-gray-600">
+              <p className="font-pixel-body text-xs font-bold text-gray-600 mt-1">
                 8-BIT CROWDFUNDING ON STELLAR
               </p>
             </div>
@@ -77,24 +77,24 @@ function App() {
         />
 
         {/* ── Main Layout Grid ───────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
           {/* Left Column: Wallet Connect & Campaign Info */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="pixel-box p-6 bg-white">
+          <div className="lg:col-span-1 space-y-8">
+            <div className="pixel-box p-6 md:p-8 bg-white">
               <WalletConnect onConnected={setWalletConnected} />
             </div>
 
             {/* Campaign Metadata Box */}
-            <div className="pixel-box p-6 bg-white font-pixel-body space-y-3">
-              <div className="flex items-center space-x-2 border-b-2 border-black pb-2">
+            <div className="pixel-box p-6 md:p-8 bg-white font-pixel-body space-y-4">
+              <div className="flex items-center space-x-2 border-b-2 border-black pb-3">
                 <PixelIcon name="star" className="w-5 h-5" />
                 <h4 className="font-pixel-heading text-xs font-bold uppercase">
                   GAME RULES
                 </h4>
               </div>
 
-              <div className="space-y-2 text-xs">
+              <div className="space-y-3 text-xs">
                 <div className="flex justify-between">
                   <span className="font-bold text-gray-600">NETWORK:</span>
                   <span className="font-bold">STELLAR TESTNET</span>
@@ -119,7 +119,7 @@ function App() {
 
               <button
                 onClick={refreshCampaign}
-                className="pixel-btn pixel-btn-accent w-full py-2 text-xs mt-3 flex items-center justify-center space-x-2"
+                className="pixel-btn pixel-btn-accent w-full py-3 text-xs mt-4 flex items-center justify-center space-x-2"
               >
                 <PixelIcon name="refresh" className="w-4 h-4" />
                 <span>REFRESH DATA</span>
@@ -128,7 +128,7 @@ function App() {
           </div>
 
           {/* Center Column: Donate Form & Transaction Status */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-8">
             <DonateForm
               connected={walletConnected}
               donationState={donationState}
@@ -152,9 +152,9 @@ function App() {
         </div>
 
         {/* ── Footer ──────────────────────────────────────────── */}
-        <footer className="pixel-box bg-white mt-8 p-4 text-center font-pixel-body text-xs space-y-1">
+        <footer className="pixel-box bg-white mt-10 p-6 text-center font-pixel-body text-xs space-y-2">
           <p className="font-bold">
-            BUILT WITH ❤️ ON <span className="bg-black text-[#D4E751] px-1">STELLAR SOROBAN</span> · 8-BIT RETRO DAPP
+            BUILT WITH ❤️ ON <span className="bg-black text-[#D4E751] px-1.5 py-0.5">STELLAR SOROBAN</span> · 8-BIT RETRO DAPP
           </p>
           <p className="text-[10px] text-gray-600 font-mono">
             CONTRACT: {CONFIG.CONTRACT_ADDRESS}
