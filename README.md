@@ -47,14 +47,9 @@ CBK6FGJ3DXHYFYUVHUDSLTXANQSSE6XN6LNLGEU6TC5LIWLSYR4OVO5V
 ## 📸 Screenshots
 
 ### Wallet Options Available
-Connect with any of 3 supported wallets — Freighter 🚀, Albedo 🔑, or xBull ⚡
-> Screenshot: wallet selection panel showing all 3 options with Install/Ready status
+Connect with any supported wallet — Freighter 🚀, Albedo 🔑, or xBull ⚡
 
-### Campaign Progress
-> Screenshot: progress bar showing raised/goal amounts with real-time updates
-
-### Donation Flow
-> Screenshot: donate form + transaction confirmed state with tx hash explorer link
+![Wallet Options Available](SCREENSHOTS/wallet_options.png)
 
 ---
 
@@ -71,7 +66,7 @@ Connect with any of 3 supported wallets — Freighter 🚀, Albedo 🔑, or xBul
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start & Setup Instructions
 
 ### Prerequisites
 - **Node.js** 18+ and npm
@@ -82,13 +77,13 @@ Connect with any of 3 supported wallets — Freighter 🚀, Albedo 🔑, or xBul
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Thanos0s/Stellar_01.git
-cd Stellar_01/my-react-app
+git clone https://github.com/Thanos0s/Stellar_02.git
+cd Stellar_02
 
 # 2. Install dependencies
 npm install
 
-# 3. Start development server (HTTPS required for wallet extensions)
+# 3. Start development server
 npm start
 ```
 
