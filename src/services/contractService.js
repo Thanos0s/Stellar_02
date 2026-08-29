@@ -249,22 +249,46 @@ export class ContractService {
   }
 
   /**
+   * Directly get raw transaction status from Soroban JSON-RPC (bypasses SDK TransactionMeta v4 parsing bug)
+   */
+  async getTransactionStatus(txHash) {
+    try {
+      const response = await fetch(CONFIG.SOROBAN_RPC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: Date.now(),
+          method: 'getTransaction',
+          params: { hash: txHash },
+        }),
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data.result || null;
+    } catch (e) {
+      console.warn('Direct getTransactionStatus error:', e);
+      return null;
+    }
+  }
+
+  /**
    * Poll transaction until confirmed or failed
    */
-  async waitForTransaction(txHash, maxAttempts = 20, intervalMs = 3000) {
+  async waitForTransaction(txHash, maxAttempts = 20, intervalMs = 2500) {
     for (let i = 0; i < maxAttempts; i++) {
       try {
-        const tx = await this.server.getTransaction(txHash);
+        const tx = await this.getTransactionStatus(txHash);
 
-        if (tx.status === StellarSdk.SorobanRpc.Api.GetTransactionStatus.SUCCESS) {
+        if (tx && (tx.status === 'SUCCESS' || tx.status === StellarSdk.SorobanRpc.Api.GetTransactionStatus.SUCCESS)) {
           return { status: 'confirmed', txHash, result: tx };
         }
 
-        if (tx.status === StellarSdk.SorobanRpc.Api.GetTransactionStatus.FAILED) {
+        if (tx && (tx.status === 'FAILED' || tx.status === StellarSdk.SorobanRpc.Api.GetTransactionStatus.FAILED)) {
           return { status: 'failed', txHash, error: 'Transaction failed on-chain' };
         }
 
-        // Still pending — wait
+        // Still pending or not found yet — wait
         await new Promise((r) => setTimeout(r, intervalMs));
       } catch (error) {
         if (i === maxAttempts - 1) {
