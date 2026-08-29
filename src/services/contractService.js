@@ -21,10 +21,33 @@ export class ContractService {
    * Helper to check if Soroban simulation failed
    */
   _isSimulationError(sim) {
-    if (StellarSdk.SorobanRpc.Api?.isSimulationError) {
-      return StellarSdk.SorobanRpc.Api.isSimulationError(sim);
+    if (!sim) return true;
+    try {
+      const parsed = StellarSdk.SorobanRpc.parseRawSimulation(sim);
+      return !StellarSdk.SorobanRpc.Api.isSimulationSuccess(parsed);
+    } catch (_) {
+      if (StellarSdk.SorobanRpc.Api?.isSimulationSuccess) {
+        return !StellarSdk.SorobanRpc.Api.isSimulationSuccess(sim);
+      }
+      return !!(sim?.error || sim?.status === 'ERROR');
     }
-    return !!(sim?.error || sim?.status === 'ERROR');
+  }
+
+  /**
+   * Safe transaction error extractor (prevents Bad Union Switch errors)
+   */
+  _parseTxError(result) {
+    if (!result) return 'Submission error';
+    if (Array.isArray(result.errors) && result.errors.length > 0) {
+      return result.errors.map((e) => e.message || e.code || e).join(', ');
+    }
+    if (result.errorResultXdr) {
+      try {
+        const tr = StellarSdk.xdr.TransactionResult.fromXDR(result.errorResultXdr, 'base64');
+        return tr.result()?.switch()?.name || 'Transaction failed on-chain';
+      } catch (_) {}
+    }
+    return result.message || 'Submission error';
   }
 
   /**
@@ -50,7 +73,7 @@ export class ContractService {
       const response = await this.server.simulateTransaction(tx);
 
       if (this._isSimulationError(response)) {
-        console.warn('Campaign simulation error:', response.error);
+        console.warn('Campaign simulation error:', response?.error);
         // Return mock data if contract not yet initialized
         return this._getMockCampaign();
       }
@@ -171,7 +194,7 @@ export class ContractService {
       }
 
       if (this._isSimulationError(simulated)) {
-        const errMsg = simulated.error || 'Unknown simulation error';
+        const errMsg = simulated?.error || 'Unknown simulation error';
         if (errMsg.includes('deadline') || errMsg.includes('Deadline')) {
           throw new TransactionFailedError('Campaign deadline has passed.', null);
         }
@@ -202,7 +225,7 @@ export class ContractService {
 
       if (result.status === 'ERROR') {
         throw new TransactionFailedError(
-          result.errorResult?.result()?.value()?.switch()?.name || 'Submission error',
+          this._parseTxError(result),
           result.hash
         );
       }
