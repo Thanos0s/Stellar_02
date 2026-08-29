@@ -13,7 +13,18 @@ import { walletService } from './walletService';
 export class ContractService {
   constructor() {
     this.server = new StellarSdk.SorobanRpc.Server(CONFIG.SOROBAN_RPC_URL);
+    this.horizonServer = new StellarSdk.Horizon.Server(CONFIG.HORIZON_URL);
     this.contractAddress = CONFIG.CONTRACT_ADDRESS;
+  }
+
+  /**
+   * Helper to check if Soroban simulation failed
+   */
+  _isSimulationError(sim) {
+    if (StellarSdk.SorobanRpc.Api?.isSimulationError) {
+      return StellarSdk.SorobanRpc.Api.isSimulationError(sim);
+    }
+    return !!(sim?.error || sim?.status === 'ERROR');
   }
 
   /**
@@ -38,7 +49,7 @@ export class ContractService {
 
       const response = await this.server.simulateTransaction(tx);
 
-      if (StellarSdk.SorobanRpc.isSimulationError(response)) {
+      if (this._isSimulationError(response)) {
         console.warn('Campaign simulation error:', response.error);
         // Return mock data if contract not yet initialized
         return this._getMockCampaign();
@@ -76,7 +87,7 @@ export class ContractService {
 
       const response = await this.server.simulateTransaction(tx);
 
-      if (StellarSdk.SorobanRpc.isSimulationError(response)) {
+      if (this._isSimulationError(response)) {
         return 0;
       }
 
@@ -132,7 +143,7 @@ export class ContractService {
       // Build the transaction
       let account;
       try {
-        account = await this.server.getAccount(publicKey);
+        account = await this.horizonServer.loadAccount(publicKey);
       } catch (error) {
         throw new RPCError('Could not fetch account from network: ' + error?.message);
       }
@@ -159,7 +170,7 @@ export class ContractService {
         throw new RPCError('Transaction simulation failed: ' + error?.message);
       }
 
-      if (StellarSdk.SorobanRpc.isSimulationError(simulated)) {
+      if (this._isSimulationError(simulated)) {
         const errMsg = simulated.error || 'Unknown simulation error';
         if (errMsg.includes('deadline') || errMsg.includes('Deadline')) {
           throw new TransactionFailedError('Campaign deadline has passed.', null);
