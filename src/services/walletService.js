@@ -299,12 +299,18 @@ export class WalletService {
   }
 
   /**
-   * Get wallet balance in XLM
+   * Get wallet balance in XLM from Stellar Horizon REST API
    */
   async getBalance(publicKey) {
+    if (!publicKey) return '0';
     try {
-      const account = await this.server.getAccount(publicKey);
-      const nativeBalance = account.balances.find((b) => b.asset_type === 'native');
+      const response = await fetch(`${CONFIG.HORIZON_URL}/accounts/${publicKey}`);
+      if (!response.ok) {
+        console.warn(`Horizon account lookup status ${response.status} for ${publicKey}`);
+        return '0';
+      }
+      const data = await response.json();
+      const nativeBalance = data.balances?.find((b) => b.asset_type === 'native');
       return nativeBalance ? nativeBalance.balance : '0';
     } catch (error) {
       console.error('Error fetching balance:', error);

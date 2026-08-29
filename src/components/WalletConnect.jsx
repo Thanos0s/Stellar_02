@@ -80,7 +80,7 @@ export const WalletConnect = ({ onConnected }) => {
 
             <div className="flex justify-between items-center">
               <span className="font-bold text-gray-700">BALANCE:</span>
-              <span className="font-pixel-heading text-xs font-bold bg-black text-green-400 px-2 py-1">
+              <span className="font-pixel-heading text-xs font-bold bg-black text-white px-2.5 py-1">
                 {parseFloat(balance).toFixed(2)} XLM
               </span>
             </div>
