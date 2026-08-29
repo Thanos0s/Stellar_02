@@ -5,6 +5,12 @@ import {
   WalletRejectionError,
 } from '../utils/errorHandler';
 import * as StellarSdk from '@stellar/stellar-sdk';
+import {
+  isConnected as isFreighterConnected,
+  requestAccess as requestFreighterAccess,
+  getAddress as getFreighterAddress,
+  signTransaction as signFreighterTransaction,
+} from '@stellar/freighter-api';
 
 // Wallet provider metadata
 export const WALLET_PROVIDERS = {
@@ -50,19 +56,38 @@ export class WalletService {
   }
 
   /**
-   * Check if a specific provider is installed
+   * Check if a specific provider is installed (synchronous)
    */
   isProviderInstalled(provider) {
     switch (provider) {
       case 'freighter':
-        return !!(window.freighterApi || window.freighter);
+        return !!(
+          typeof window !== 'undefined' &&
+          (window.freighterApi || window.freighter || window.stellar)
+        );
       case 'albedo':
-        return !!window.albedo;
+        return !!(typeof window !== 'undefined' && window.albedo);
       case 'xbull':
-        return !!(window.xBullSDK || window.xbull);
+        return !!(typeof window !== 'undefined' && (window.xBullSDK || window.xbull));
       default:
         return false;
     }
+  }
+
+  /**
+   * Check if a specific provider is installed (asynchronous, works for extension delay)
+   */
+  async isProviderInstalledAsync(provider) {
+    if (provider === 'freighter') {
+      if (this.isProviderInstalled('freighter')) return true;
+      try {
+        const conn = await isFreighterConnected();
+        return !!(conn && (conn.isConnected || conn === true));
+      } catch (_) {
+        return false;
+      }
+    }
+    return this.isProviderInstalled(provider);
   }
 
   /**
@@ -70,25 +95,46 @@ export class WalletService {
    */
   async connectFreighter() {
     try {
-      const freighterApi = window.freighterApi || window.freighter;
-      if (!freighterApi) {
-        throw new WalletNotFoundError('Freighter');
+      let publicKey = null;
+
+      // 1. Try official @stellar/freighter-api requestAccess
+      try {
+        const accessObj = await requestFreighterAccess();
+        if (accessObj && accessObj.address) {
+          publicKey = accessObj.address;
+        } else if (typeof accessObj === 'string' && accessObj) {
+          publicKey = accessObj;
+        }
+      } catch (e) {
+        // Fallback to getAddress
+        try {
+          const addrObj = await getFreighterAddress();
+          if (addrObj && addrObj.address) {
+            publicKey = addrObj.address;
+          } else if (typeof addrObj === 'string' && addrObj) {
+            publicKey = addrObj;
+          }
+        } catch (_) {}
       }
 
-      // Check if Freighter has access
-      let publicKey;
-      try {
-        const isAllowed = await freighterApi.isAllowed?.();
-        if (!isAllowed) {
-          await freighterApi.setAllowed?.();
+      // 2. Fallback to window.freighterApi or window.freighter
+      if (!publicKey && typeof window !== 'undefined') {
+        const freighterApi = window.freighterApi || window.freighter;
+        if (freighterApi) {
+          try {
+            const isAllowed = await freighterApi.isAllowed?.();
+            if (!isAllowed) {
+              await freighterApi.setAllowed?.();
+            }
+            publicKey = await freighterApi.getPublicKey?.();
+          } catch (e) {
+            publicKey = await freighterApi.getPublicKey?.();
+          }
         }
-        publicKey = await freighterApi.getPublicKey();
-      } catch (e) {
-        publicKey = await freighterApi.getPublicKey();
       }
 
       if (!publicKey) {
-        throw new WalletRejectionError();
+        throw new WalletNotFoundError('Freighter');
       }
 
       this.provider = 'freighter';
@@ -98,11 +144,17 @@ export class WalletService {
 
       return { publicKey };
     } catch (error) {
-      if (error instanceof WalletConnectionError) throw error;
-      if (error?.message?.includes('rejected') || error?.message?.includes('denied')) {
+      if (error instanceof WalletConnectionError || error instanceof WalletNotFoundError) throw error;
+      if (
+        error?.message?.includes('rejected') ||
+        error?.message?.includes('denied') ||
+        error?.message?.includes('User declined')
+      ) {
         throw new WalletRejectionError();
       }
-      throw new WalletConnectionError('Freighter connection failed: ' + error?.message);
+      throw new WalletConnectionError(
+        'Freighter connection failed: ' + (error?.message || 'Wallet not responding')
+      );
     }
   }
 
@@ -189,18 +241,37 @@ export class WalletService {
     const xdr = tx.toXDR();
 
     if (this.provider === 'freighter') {
-      const freighterApi = window.freighterApi || window.freighter;
-      let signedXdr;
-      // Handle both old and new Freighter API
-      if (typeof freighterApi.signTransaction === 'function') {
-        const result = await freighterApi.signTransaction(xdr, {
+      let signedXdr = null;
+
+      try {
+        const res = await signFreighterTransaction(xdr, {
           networkPassphrase: CONFIG.NETWORK_PASSPHRASE,
           network: 'TESTNET',
         });
-        signedXdr = typeof result === 'string' ? result : result?.signedTxXdr || result;
-      } else {
-        throw new WalletConnectionError('Freighter signTransaction not available');
+        if (res && res.signedTxXdr) {
+          signedXdr = res.signedTxXdr;
+        } else if (typeof res === 'string') {
+          signedXdr = res;
+        }
+      } catch (e) {
+        console.warn('freighter-api signTransaction fallback:', e);
       }
+
+      if (!signedXdr && typeof window !== 'undefined') {
+        const freighterApi = window.freighterApi || window.freighter;
+        if (freighterApi && typeof freighterApi.signTransaction === 'function') {
+          const result = await freighterApi.signTransaction(xdr, {
+            networkPassphrase: CONFIG.NETWORK_PASSPHRASE,
+            network: 'TESTNET',
+          });
+          signedXdr = typeof result === 'string' ? result : result?.signedTxXdr || result;
+        }
+      }
+
+      if (!signedXdr) {
+        throw new WalletConnectionError('Freighter transaction signing failed or was rejected');
+      }
+
       return StellarSdk.TransactionBuilder.fromXDR(signedXdr, CONFIG.NETWORK_PASSPHRASE);
 
     } else if (this.provider === 'albedo') {

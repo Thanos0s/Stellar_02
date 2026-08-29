@@ -9,6 +9,23 @@ export const useWallet = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [provider, setProvider] = useState(null);
+  const [installedProviders, setInstalledProviders] = useState({
+    freighter: walletService.isProviderInstalled('freighter'),
+    albedo: walletService.isProviderInstalled('albedo'),
+    xbull: walletService.isProviderInstalled('xbull'),
+  });
+
+  const checkInstalledProviders = useCallback(async () => {
+    const freighterInstalled = await walletService.isProviderInstalledAsync('freighter');
+    const albedoInstalled = walletService.isProviderInstalled('albedo');
+    const xbullInstalled = walletService.isProviderInstalled('xbull');
+
+    setInstalledProviders({
+      freighter: freighterInstalled,
+      albedo: albedoInstalled,
+      xbull: xbullInstalled,
+    });
+  }, []);
 
   const fetchBalance = useCallback(async (publicKey) => {
     try {
@@ -19,6 +36,27 @@ export const useWallet = () => {
       setBalance('0');
     }
   }, []);
+
+  // Async detect installed wallet extensions (handles injection delay)
+  useEffect(() => {
+    checkInstalledProviders();
+
+    const handleLoadOrFocus = () => {
+      checkInstalledProviders();
+    };
+
+    window.addEventListener('load', handleLoadOrFocus);
+    window.addEventListener('focus', handleLoadOrFocus);
+    const timer1 = setTimeout(checkInstalledProviders, 300);
+    const timer2 = setTimeout(checkInstalledProviders, 1000);
+
+    return () => {
+      window.removeEventListener('load', handleLoadOrFocus);
+      window.removeEventListener('focus', handleLoadOrFocus);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
+  }, [checkInstalledProviders]);
 
   // Auto-reconnect from session storage on mount
   useEffect(() => {
@@ -60,9 +98,10 @@ export const useWallet = () => {
         throw err;
       } finally {
         setLoading(false);
+        checkInstalledProviders();
       }
     },
-    [fetchBalance]
+    [fetchBalance, checkInstalledProviders]
   );
 
   const disconnect = useCallback(() => {
@@ -80,9 +119,15 @@ export const useWallet = () => {
     }
   }, [address, fetchBalance]);
 
-  const isProviderInstalled = useCallback((walletProvider) => {
-    return walletService.isProviderInstalled(walletProvider);
-  }, []);
+  const isProviderInstalled = useCallback(
+    (walletProvider) => {
+      return (
+        installedProviders[walletProvider] ||
+        walletService.isProviderInstalled(walletProvider)
+      );
+    },
+    [installedProviders]
+  );
 
   const clearError = useCallback(() => setError(null), []);
 
